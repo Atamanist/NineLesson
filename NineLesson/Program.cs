@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using System.Xml.Linq;
+using Telegram.Bot.Types.InputFiles;
 
 namespace NineLesson
 {
@@ -20,30 +21,6 @@ namespace NineLesson
         {
 
             string token = File.ReadAllText("tekken.txt");
-
-            #region exc
-
-            //// https://hidemyna.me/ru/proxy-list/?maxtime=250#list
-
-            // Содержит параметры HTTP-прокси для System.Net.WebRequest класса.
-            //var proxy = new WebProxy()
-            //{
-            //    Address = new Uri($"http://77.87.240.74:3128"),
-            //    UseDefaultCredentials = false,
-            //    //Credentials = new NetworkCredential(userName: "login", password: "password")
-            //};
-
-            //// Создает экземпляр класса System.Net.Http.HttpClientHandler.
-            //var httpClientHandler = new HttpClientHandler() { Proxy = proxy };
-
-            //// Предоставляет базовый класс для отправки HTTP-запросов и получения HTTP-ответов 
-            //// от ресурса с заданным URI.
-            //HttpClient hc = new HttpClient(httpClientHandler);
-
-            //bot = new TelegramBotClient(token, hc);
-
-            #endregion
-
             bot = new TelegramBotClient(token);
             bot.OnMessage += MessageListener;
             bot.StartReceiving();
@@ -66,28 +43,26 @@ namespace NineLesson
                 DownLoad(e.Message.Document.FileId, e.Message.Document.FileName);
             }
 
-            //if (e.Message.Text == null) return;
 
-            //var messageText = e.Message.Text;
+            if (e.Message.Text == "123")
+            {
+                FileStream fs = File.OpenRead($"{e.Message.Text}.txt");
 
 
-            //bot.SendTextMessageAsync(e.Message.Chat.Id,
-            //    $"{messageText}"
-            //    );
+                InputOnlineFile fl = new InputOnlineFile(fs,e.Message.Text);
+
+                bot.SendDocumentAsync(e.Message.Chat.Id, fl, e.Message.Text);
+
+            }
+
+
 
             if (e.Message.Text != null)
             {
                 e.Message.Text=e.Message.Text.ToUpper();
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 XDocument xml = XDocument.Load("http://www.cbr.ru/scripts/XML_daily.asp");
-                xml.
-                if ((xml.Elements("ValCurs")
-                                    .Elements("Valute")
-                                    .FirstOrDefault(x => x.Element("CharCode")
-                                    .Value == $"{e.Message.Text}")
-                                    .Elements("Value")
-                                    .FirstOrDefault()
-                                    .Value) != null)
+                if (e.Message.Text=="USD")
                 {
                     var messageText = (xml.Elements("ValCurs")
                     .Elements("Valute")
@@ -112,7 +87,6 @@ namespace NineLesson
 
             }
 
-            //return;
 
 
         }
@@ -125,6 +99,8 @@ namespace NineLesson
             fs.Close();
 
             fs.Dispose();
+            
         }
+
     }
 }
