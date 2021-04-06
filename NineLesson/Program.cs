@@ -57,6 +57,19 @@ namespace NineLesson
 
             }
 
+            if (e.Message.Text == "sendnudes")
+            {
+                string trim = "";
+
+                DirectoryInfo directoryInfo = new DirectoryInfo("");  // Получаем информацию о текущем каталоге
+
+                foreach (var item in directoryInfo.GetFiles())          // Перебираем все файлы текущего каталога
+                {
+                    bot.SendTextMessageAsync(e.Message.Chat.Id, $"{trim}{item.Name}"); // Выводим информацию о них
+                }
+
+            }
+
 
 
             if (e.Message.Text != null)
