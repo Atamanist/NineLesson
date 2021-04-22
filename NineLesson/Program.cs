@@ -10,18 +10,23 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using System.Xml.Linq;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
+
+
 
 namespace NineLesson
 {
     class Program
     {
+        public static string pathline;
         static TelegramBotClient bot;
 
         static void Main(string[] args)
         {
+            ShowTokken();
+            pathline = ShowDaWay();
+            Console.WriteLine("Bot start");
 
-            string token = File.ReadAllText("tekken.txt");
-            bot = new TelegramBotClient(token);
             bot.OnMessage += MessageListener;
             bot.StartReceiving();
             Console.ReadKey();
@@ -29,11 +34,28 @@ namespace NineLesson
 
         private static void MessageListener(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(@"V:\BotFiles");  // Получаем информацию о текущем каталоге
+            DirectoryInfo directoryInfo = new DirectoryInfo(pathline);  // Получаем информацию о текущем каталоге
             string text = $"{DateTime.Now.ToLongTimeString()}: {e.Message.Chat.FirstName} {e.Message.Chat.Id} {e.Message.Text}";
             string g = "gimme+";
             string s = "send+";
             Console.WriteLine($"{text} TypeMessage: {e.Message.Type.ToString()}");
+
+            #region для работы
+            //            var keyboard = new InlineKeyboardMarkup(new[]
+            //            {
+            //    new [] // first row
+            //    {
+            //        InlineKeyboardButton.WithUrl("1.1"),
+            //        InlineKeyboardButton.WithCallbackData("1.2"),
+            //    },
+            //    new [] // second row
+            //    {
+            //        InlineKeyboardButton.WithCallbackData("2.1"),
+            //        InlineKeyboardButton.WithCallbackData("2.2"),
+            //    }
+            //});
+            //bot.SendTextMessageAsync(e.Message.Chat.Id, "text", replyMarkup:keyboard) ;
+            #endregion
 
             if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Document)
             {
@@ -68,7 +90,6 @@ namespace NineLesson
 
             }
 
-
         }
 
         /// <summary>
@@ -79,7 +100,7 @@ namespace NineLesson
         static async void DownLoad(string fileId, string path)
         {
             var file = await bot.GetFileAsync(fileId);
-            FileStream fs = new FileStream(@$"V:\BotFiles\{path}", FileMode.Create);
+            FileStream fs = new FileStream(@$"{pathline}{path}", FileMode.Create);
             await bot.DownloadFileAsync(file.FilePath, fs);
             fs.Close();
 
@@ -115,7 +136,6 @@ namespace NineLesson
 
             try
             {           
-
                 var messageText = xml.Elements("ValCurs").
                     Elements("Valute").
                     FirstOrDefault(x => x.Element("CharCode").
@@ -155,7 +175,7 @@ namespace NineLesson
             e.Message.Text = e.Message.Text.Substring(position+1);
             try
             {
-                FileStream fs = File.OpenRead($@"V:\BotFiles\{e.Message.Text}");
+                FileStream fs = File.OpenRead($@"{pathline}{e.Message.Text}");
                  
                 InputOnlineFile fl = new InputOnlineFile(fs, e.Message.Text);
                 bot.SendDocumentAsync(e.Message.Chat.Id, fl, e.Message.Text);
@@ -164,6 +184,61 @@ namespace NineLesson
             {
                 bot.SendTextMessageAsync(e.Message.Chat.Id, $"Нет такого файла");
             }
+
+        }
+
+        /// <summary>
+        /// Проверка пути к токену в формате тхт и возврат бота
+        /// </summary>
+        /// <returns></returns>
+        static TelegramBotClient ShowTokken()
+        {
+            bool r=true;
+            string ptoken;
+            while (r)
+            {
+                Console.WriteLine("Path tokken:");
+                ptoken = Console.ReadLine();
+                //ptoken = @$"tekken.txt";
+                try
+                {
+
+                    bot = new TelegramBotClient(File.ReadAllText(ptoken));
+
+                    r = false;
+                }
+                catch
+                {
+                    Console.WriteLine("Wrong path or tokken");
+                }
+
+            }
+            return (bot);
+
+        }
+
+        /// <summary>
+        /// Проверка пути к папке для сохранения выгрузки
+        /// </summary>
+        /// <returns></returns>
+        static string ShowDaWay()
+        {
+            bool r = false;
+            string pfolder = "";
+            while (r==false)
+            {
+                Console.WriteLine("Path folder:");
+                pfolder = Console.ReadLine();
+                //pfolder = @$"V:\BotFiles";
+                DirectoryInfo directoryInfo = new DirectoryInfo(pfolder);
+                if(r = directoryInfo.Exists)
+                {
+                    break;
+                }
+                Console.WriteLine("Wrong path");
+
+            }
+            return (pfolder);
 
         }
 
