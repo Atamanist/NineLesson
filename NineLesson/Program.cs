@@ -223,7 +223,7 @@ namespace NineLesson
             string pfolder = "";
             while (r==false)
             {
-                Console.WriteLine("Path folder:");
+                Console.WriteLine("Path folder aka cloud:");
                 pfolder = Console.ReadLine();
                 //pfolder = @$"V:\BotFiles";
                 try
